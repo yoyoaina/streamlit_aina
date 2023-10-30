@@ -1,18 +1,71 @@
 import streamlit as st
-from langchain.llms import OpenAI
+import requests
+import json
+import openai
+import requests
 
-st.title('🦜🔗 Quickstart App')
+openai.api_key = "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"
 
-openai_api_key = st.sidebar.text_input('OpenAI API Key')
+#API_ENDPOINT = "https://2gsnyaloleib4xmrl5uhfwkd7i0dedcn.lambda-url.eu-north-1.on.aws/"  # Replace this with your AWS Lambda API endpoint
 
-def generate_response(input_text):
-  llm = OpenAI(temperature=0.7, openai_api_key=openai_api_key)
-  st.info(llm(input_text))
+st.title("Ashneer AI.NA")
 
-with st.form('my_form'):
-  text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
-  submitted = st.form_submit_button('Submit')
-  if not openai_api_key.startswith('sk-'):
-    st.warning('Please enter your OpenAI API key!', icon='⚠')
-  if submitted and openai_api_key.startswith('sk-'):
-    generate_response(text)
+def chat_with_model(message):
+    context = "You are a helpful assistant"
+    prompt = f"Chat:\n{context}\nUser: {message}\n"
+
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=50
+    )
+
+    reply = response.choices[0].text.strip()
+    return reply
+
+# User input
+user_input = st.text_input("You: ")
+
+if st.button("Send"):
+    # Check if user entered a message
+    if user_input:
+        # Call the AWS Lambda function
+        bot_response=chat_with_model(user_input)
+        # response = requests.post(API_ENDPOINT, json={"prompt": user_input})
+
+        # # Display the chatbot response
+        # if response.status_code == 200:
+        #     bot_response = response.json().get("response")
+       
+        st.write("Chatbot:", bot_response)
+        # else:
+        #     st.write("Error: Unable to fetch chatbot response. Please try again.")
+    else:
+        st.warning("Please enter a message.")
+
+
+
+
+
+
+# def lambda_handler(event, context):
+#     # Parse the message from the event
+#     try:
+#         body = json.loads(event['body'])
+#         message = body['prompt']
+#     except KeyError:
+#         return {
+#             'statusCode': 400,
+#             'body': json.dumps('Invalid input format')
+#         }
+    
+    # Call the chat_with_model function with the received message
+    # response_message = chat_with_model(message)
+    
+    # # Return the response
+    # return {
+    #     'statusCode': 200,
+    #     'body': json.dumps({
+    #         'response': response_message
+    #     })
+    # }
